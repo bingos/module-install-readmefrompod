@@ -40,7 +40,7 @@ version '0.01';
 author 'Foo Bar';
 abstract 'This module does something';
 license 'perl';
-readme_from 'README.pm';
+readme_from 'README.pm' => 'clean';
 WriteAll;
 EOF
 close MFPL;
