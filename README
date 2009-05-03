@@ -1,0 +1,50 @@
+NAME
+    Module::Install::ReadmeFromPod - A Module::Install extension to
+    automatically convert POD to a README
+
+SYNOPSIS
+      # In Makefile.PL
+
+      use inc::Module::Install;
+      author 'Vestan Pants';
+      license 'perl';
+      readme_from 'lib/Some/Module.pm';
+
+    A "README" file will be generated from the POD of the indicated module
+    file.
+
+DESCRIPTION
+    Module::Install::ReadmeFromPod is a Module::Install extension that
+    generates a "README" file automatically from an indicated file
+    containing POD, whenever the author runs "Makefile.PL".
+
+COMMANDS
+    This plugin adds the following Module::Install command:
+
+    "readme_from"
+        Does nothing on the user-side. On the author-side it will generate a
+        "README" file using Pod::Text from the POD in the file passed as a
+        parameter.
+
+          readme_from 'lib/Some/Module.pm';
+
+        If a second parameter is set to a true value then the "README" will
+        be removed at "make distclean".
+
+          readme_from 'lib/Some/Module.pm' => 'clean';
+
+AUTHOR
+    Chris "BinGOs" Williams
+
+LICENSE
+    Copyright © Chris Williams
+
+    This module may be used, modified, and distributed under the same terms
+    as Perl itself. Please see the license that came with your Perl
+    distribution for details.
+
+SEE ALSO
+    Module::Install
+
+    Pod::Text
+

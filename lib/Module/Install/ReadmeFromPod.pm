@@ -11,11 +11,13 @@ sub readme_from {
   my $self = shift;
   return unless $Module::Install::AUTHOR;
   my $file = shift || return;
+  my $clean = shift;
   require Pod::Text;
   my $parser = Pod::Text->new();
   open README, '> README' or die "$!\n";
   $parser->output_fh( *README );
   $parser->parse_file( $file );
+  return 1 unless $clean;
   $self->postamble(<<"END");
 distclean :: license_clean
 
@@ -61,6 +63,10 @@ Does nothing on the user-side. On the author-side it will generate a C<README> f
 the POD in the file passed as a parameter.
 
   readme_from 'lib/Some/Module.pm';
+
+If a second parameter is set to a true value then the C<README> will be removed at C<make distclean>.
+
+  readme_from 'lib/Some/Module.pm' => 'clean';
 
 =back
 

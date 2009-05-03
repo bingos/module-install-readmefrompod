@@ -61,6 +61,6 @@ ok( -e 'README', 'There is a README file' );
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
 
-ok( -e 'README', 'There is a README file' );
+ok( !-e 'README', 'The README file has been removed' );
 
 exit 0;
