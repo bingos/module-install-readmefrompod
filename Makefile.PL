@@ -10,6 +10,7 @@ perl_version '5.006';
 build_requires 'Test::More' => 0.47;
 build_requires 'Capture::Tiny' => 0.05;
 requires 'Module::Install' => 0.85;
+readme_from 'lib/Module/Install/ReadmeFromPod.pm';
 eval "auto_set_repository";
 clean_files 'dist have_make';
 if ( $Config{make} and can_run( $Config{make} ) ) {
