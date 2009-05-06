@@ -1,9 +1,13 @@
 Changelog for Module-Install-ReadmeFromPod
 ==========================================
 
+0.06	Wed May  6 12:39:22 BST 2009
+	- Explicitly require a modern Pod::Text;
+	- Changed to auto_license and githubmeta
+
 0.04	Sun May  3 23:37:13 BST 2009
 	- Forgot the clean in the clean test
 	- Forgot to add the clean test to the MANIFEST
-1
+
 0.02	Sun May  3 23:11:09 BST 2009
 	- Initial CPAN Release

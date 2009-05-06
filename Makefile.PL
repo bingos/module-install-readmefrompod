@@ -6,12 +6,14 @@ author 'Chris Williams <chris@bingosnet.co.uk>';
 version_from 'lib/Module/Install/ReadmeFromPod.pm';
 abstract_from 'lib/Module/Install/ReadmeFromPod.pm';
 license 'perl';
+auto_license holder => 'Chris Williams';
 perl_version '5.006';
 build_requires 'Test::More' => 0.47;
 build_requires 'Capture::Tiny' => 0.05;
 requires 'Module::Install' => 0.85;
+requires 'Pod::Text' => 3.13;
 readme_from 'lib/Module/Install/ReadmeFromPod.pm';
-eval "auto_set_repository";
+githubmeta;
 clean_files 'dist have_make';
 if ( $Config{make} and can_run( $Config{make} ) ) {
   print "I can run '", $Config{make}, "' good\n";

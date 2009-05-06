@@ -1,6 +1,0 @@
-^inc/Module/Install/Repository.pm
-^MANIFEST.SKIP
-^.git
-^Makefile$
-^MANIFEST\.
-^blib/
