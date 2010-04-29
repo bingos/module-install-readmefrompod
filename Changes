@@ -1,6 +1,10 @@
 Changelog for Module-Install-ReadmeFromPod
 ==========================================
 
+0.08  Thu Apr 29 13:19:21 BST 2010
+  - Tests runnable in parallel now. Reported by
+    Florian Ragwitz RT #56980
+
 0.06	Wed May  6 12:39:22 BST 2009
 	- Explicitly require a modern Pod::Text;
 	- Changed to auto_license and githubmeta

@@ -9,6 +9,7 @@ license 'perl';
 auto_license holder => 'Chris Williams';
 perl_version '5.006';
 build_requires 'Test::More' => 0.47;
+build_requires 'File::Temp' => 0;
 build_requires 'Capture::Tiny' => 0.05;
 requires 'Module::Install' => 0.85;
 requires 'Pod::Text' => 3.13;

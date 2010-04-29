@@ -1,12 +1,10 @@
 use strict;
 use warnings;
 use Test::More; #tests => 1;
+use File::Temp      qw[tempdir];
 use File::Path      qw[rmtree];
 use Capture::Tiny   qw[capture_merged];
 use Config;
-
-# Cleanup 
-eval { rmtree('dist') };
 
 unless ( -e 'have_make' ) {
   plan skip_all => 'No network tests';
@@ -14,10 +12,11 @@ unless ( -e 'have_make' ) {
 
 plan tests => 3;
 
+{
 my $make = $Config{make};
-
-mkdir 'dist' or die "$!\n";
-chdir 'dist' or die "$!\n";
+mkdir 'dist';
+my $tmpdir = tempdir( DIR => 'dist', CLEANUP => 1 );
+chdir $tmpdir or die "$!\n";
 open READMEPM , '>README.pm' or die "$!\n";
 print READMEPM <<README;
 =head1 NAME
@@ -63,4 +62,5 @@ diag("$distclean");
 
 ok( !-e 'README', 'The README file has been removed' );
 
+}
 exit 0;
