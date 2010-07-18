@@ -5,7 +5,7 @@ use warnings;
 use base qw(Module::Install::Base);
 use vars qw($VERSION);
 
-$VERSION = '0.08';
+$VERSION = '0.10';
 
 sub readme_from {
   my $self = shift;
@@ -45,6 +45,11 @@ Module::Install::ReadmeFromPod - A Module::Install extension to automatically co
   readme_from 'lib/Some/Module.pm';
 
 A C<README> file will be generated from the POD of the indicated module file.
+
+Note that the author will need to make sure
+C<Module::Install::ReadmeFromPod> is installed
+before running the C<Makefile.PL>.  (The extension will be bundled
+into the user-side distribution).
 
 =head1 DESCRIPTION
 

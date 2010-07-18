@@ -13,6 +13,11 @@ SYNOPSIS
     A "README" file will be generated from the POD of the indicated module
     file.
 
+    Note that the author will need to make sure
+    "Module::Install::ReadmeFromPod" is installed before running the
+    "Makefile.PL". (The extension will be bundled into the user-side
+    distribution).
+
 DESCRIPTION
     Module::Install::ReadmeFromPod is a Module::Install extension that
     generates a "README" file automatically from an indicated file
