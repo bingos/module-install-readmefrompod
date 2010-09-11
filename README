@@ -38,6 +38,13 @@ COMMANDS
 
           readme_from 'lib/Some/Module.pm' => 'clean';
 
+        If you use the "all_from" command, "readme_from" will default to
+        that value.
+
+          all_from 'lib/Some/Module.pm';
+          readme_from;              # Create README from lib/Some/Module.pm
+          readme_from '','clean';   # Put a empty string before 'clean'
+
 AUTHOR
     Chris "BinGOs" Williams
 

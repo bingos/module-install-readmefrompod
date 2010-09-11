@@ -1,30 +1,42 @@
 package Module::Install::ReadmeFromPod;
 
+use 5.006;
 use strict;
 use warnings;
 use base qw(Module::Install::Base);
 use vars qw($VERSION);
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 sub readme_from {
   my $self = shift;
-  return unless $Module::Install::AUTHOR;
-  my $file = shift || return;
+  return unless $self->is_admin;
+
+  my $file = shift || $self->_all_from
+    or die "Can't determine file to make readme_from";
   my $clean = shift;
+
+  print "Writing README from $file\n";
+
   require Pod::Text;
   my $parser = Pod::Text->new();
   open README, '> README' or die "$!\n";
   $parser->output_fh( *README );
   $parser->parse_file( $file );
-  return 1 unless $clean;
-  $self->postamble(<<"END");
-distclean :: license_clean
-
-license_clean:
-\t\$(RM_F) README
-END
+  if ($clean) {
+    $self->clean_files('README');
+  }
   return 1;
+}
+
+sub _all_from {
+  my $self = shift;
+  return unless $self->admin->{extensions};
+  my ($metadata) = grep {
+    ref($_) eq 'Module::Install::Metadata';
+  } @{$self->admin->{extensions}};
+  return unless $metadata;
+  return $metadata->{values}{all_from} || '';
 }
 
 'Readme!';
@@ -72,6 +84,12 @@ the POD in the file passed as a parameter.
 If a second parameter is set to a true value then the C<README> will be removed at C<make distclean>.
 
   readme_from 'lib/Some/Module.pm' => 'clean';
+
+If you use the C<all_from> command, C<readme_from> will default to that value.
+
+  all_from 'lib/Some/Module.pm';
+  readme_from;              # Create README from lib/Some/Module.pm
+  readme_from '','clean';   # Put a empty string before 'clean'
 
 =back
 
