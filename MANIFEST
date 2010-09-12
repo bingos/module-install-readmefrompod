@@ -19,5 +19,6 @@ README
 t/00_compile.t
 t/01_dist.t
 t/02_clean.t
+t/03_all_from.t
 t/99_pod.t
 t/99_pod_coverage.t
