@@ -9,7 +9,7 @@ auto_license holder => 'Chris Williams';
 build_requires 'Test::More' => 0.47;
 build_requires 'File::Temp' => 0;
 build_requires 'Capture::Tiny' => 0.05;
-requires 'Module::Install' => 0.85;
+requires 'Module::Install' => 1.00;
 requires 'Pod::Text' => 3.13;
 readme_from;    # Self hosting!
 githubmeta;
