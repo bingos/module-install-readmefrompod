@@ -1,6 +1,10 @@
 Changelog for Module-Install-ReadmeFromPod
 ==========================================
 
+0.13  Mon Sep 20 09:44:49 PDT 2010
+  - Standardise Module::Install plugin output. (Ingy)
+    Make output begin with name of the directive.
+
 0.12  Fri Sep 10 14:15:14 PDT 2010
   - Get default file from 'all_from'. (Ingy)
 

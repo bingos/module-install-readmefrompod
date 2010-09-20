@@ -6,7 +6,7 @@ use warnings;
 use base qw(Module::Install::Base);
 use vars qw($VERSION);
 
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 sub readme_from {
   my $self = shift;
@@ -16,7 +16,7 @@ sub readme_from {
     or die "Can't determine file to make readme_from";
   my $clean = shift;
 
-  print "Writing README from $file\n";
+  print "readme_from $file\n";
 
   require Pod::Text;
   my $parser = Pod::Text->new();
