@@ -12,22 +12,34 @@ sub readme_from {
   my $self = shift;
   return unless $self->is_admin;
 
-  my $file = shift || $self->_all_from
+  my $file   = shift || $self->_all_from
     or die "Can't determine file to make readme_from";
-  my $clean = shift;
+  my $clean  = shift || 0;
+  my $format = shift || 'txt';
+  print "readme_from $file ($format)\n";
+  
+  if ($format eq 'txt') {
+    $self->readme_txt($file, $clean, $format);
+  }
 
-  print "readme_from $file\n";
+  return 1;
+}
 
+
+sub readme_txt {
+  my ($self, $file, $clean, $format) = @_;
   require Pod::Text;
+  my $out_file = 'README';
   my $parser = Pod::Text->new();
-  open README, '> README' or die "$!\n";
-  $parser->output_fh( *README );
+  open my $out_fh, "> $out_file" or die "Could not write file $out_file: $!\n";
+  $parser->output_fh( *$out_fh );
   $parser->parse_file( $file );
   if ($clean) {
     $self->clean_files('README');
   }
   return 1;
 }
+
 
 sub _all_from {
   my $self = shift;
