@@ -18,8 +18,13 @@ sub readme_from {
   my $format = shift || 'txt';
   print "readme_from $file ($format)\n";
   
-  if ($format eq 'txt') {
-    $self->readme_txt($file, $clean, $format);
+  my $out;
+  if ($format = 'txt') {
+    $out_file = $self->readme_txt($file);
+  }
+
+  if ($clean) {
+    $self->clean_files($out_file);
   }
 
   return 1;
@@ -27,17 +32,14 @@ sub readme_from {
 
 
 sub readme_txt {
-  my ($self, $file, $clean, $format) = @_;
+  my ($self, $file) = @_;
   require Pod::Text;
   my $out_file = 'README';
   my $parser = Pod::Text->new();
   open my $out_fh, "> $out_file" or die "Could not write file $out_file: $!\n";
   $parser->output_fh( *$out_fh );
   $parser->parse_file( $file );
-  if ($clean) {
-    $self->clean_files('README');
-  }
-  return 1;
+  return $out_file;
 }
 
 
