@@ -1,4 +1,5 @@
 use strict;
+use lib 'lib';
 use inc::Module::Install;
 use Config;
 
