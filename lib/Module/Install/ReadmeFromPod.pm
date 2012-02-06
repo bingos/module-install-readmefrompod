@@ -12,22 +12,90 @@ sub readme_from {
   my $self = shift;
   return unless $self->is_admin;
 
-  my $file = shift || $self->_all_from
+  my $in_file  = shift || $self->_all_from
     or die "Can't determine file to make readme_from";
-  my $clean = shift;
+  my $clean    = shift || 0;
+  my $format   = shift || 'txt';
+  my $out_file = shift;
+  my @options  = @_;
 
-  print "readme_from $file\n";
-
-  require Pod::Text;
-  my $parser = Pod::Text->new();
-  open README, '> README' or die "$!\n";
-  $parser->output_fh( *README );
-  $parser->parse_file( $file );
-  if ($clean) {
-    $self->clean_files('README');
+  print "readme_from $in_file to $format\n";
+  
+  if ($format =~ m/te?xt/) {
+    $out_file = $self->_readme_txt($in_file, $out_file, @options);
+  } elsif ($format =~ m/html?/) {
+    $out_file = $self->_readme_htm($in_file, $out_file, @options);
+  } elsif ($format eq 'man') {
+    $out_file = $self->_readme_man($in_file, $out_file, @options);
+  } elsif ($format eq 'pdf') {
+    $out_file = $self->_readme_pdf($in_file, $out_file, @options);
   }
+
+  if ($clean) {
+    $self->clean_files($out_file);
+  }
+
   return 1;
 }
+
+
+sub _readme_txt {
+  my ($self, $in_file, $out_file, @options) = @_;
+  $out_file ||= 'README';
+  require Pod::Text;
+  my $parser = Pod::Text->new( @options );
+  open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
+  $parser->output_fh( *$out_fh );
+  $parser->parse_file( $in_file );
+  close $out_fh;
+  return $out_file;
+}
+
+
+sub _readme_htm {
+  my ($self, $in_file, $out_file, @options) = @_;
+  $out_file ||= 'README.htm';
+  require Pod::Html;
+  Pod::Html::pod2html(
+    "--infile=$in_file",
+    "--outfile=$out_file",
+    @options,
+  );
+  # Remove temporary files if needed
+  for my $file ('pod2htmd.tmp', 'pod2htmi.tmp') {
+    if (-e $file) {
+      unlink $file or warn "Warning: Could not remove file '$file'.\n$!\n";
+    }
+  }
+  return $out_file;
+}
+
+
+sub _readme_man {
+  my ($self, $in_file, $out_file, @options) = @_;
+  $out_file ||= 'README.1';
+  require Pod::Man;
+  my $parser = Pod::Man->new( @options );
+  $parser->parse_from_file($in_file, $out_file);
+  return $out_file;
+}
+
+
+sub _readme_pdf {
+  my ($self, $in_file, $out_file, @options) = @_;
+  $out_file ||= 'README.pdf';
+  eval { require App::pod2pdf; }
+    or die "Could not generate $out_file because pod2pdf could not be found\n";
+  my $parser = App::pod2pdf->new( @options );
+  $parser->parse_from_file($in_file);
+  open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
+  select $out_fh;
+  $parser->output;
+  select STDOUT;
+  close $out_fh;
+  return $out_file;
+}
+
 
 sub _all_from {
   my $self = shift;
@@ -55,6 +123,8 @@ Module::Install::ReadmeFromPod - A Module::Install extension to automatically co
   author 'Vestan Pants';
   license 'perl';
   readme_from 'lib/Some/Module.pm';
+  my @options = ( '--backlink="Back to Top" );
+  readme_from 'lib/Some/Module.pm', 'clean', 'htm', 'SomeModule.html', @options;
 
 A C<README> file will be generated from the POD of the indicated module file.
 
@@ -65,8 +135,10 @@ into the user-side distribution).
 
 =head1 DESCRIPTION
 
-Module::Install::ReadmeFromPod is a L<Module::Install> extension that generates a C<README> file 
-automatically from an indicated file containing POD, whenever the author runs C<Makefile.PL>.
+Module::Install::ReadmeFromPod is a L<Module::Install> extension that generates
+a C<README> file automatically from an indicated file containing POD, whenever
+the author runs C<Makefile.PL>. Several output formats are supported: plain-text,
+HTML, PDF or manpage.
 
 =head1 COMMANDS
 
@@ -76,14 +148,51 @@ This plugin adds the following Module::Install command:
 
 =item C<readme_from>
 
-Does nothing on the user-side. On the author-side it will generate a C<README> file using L<Pod::Text> from
-the POD in the file passed as a parameter.
+Does nothing on the user-side. On the author-side it will generate a C<README>
+file.
 
   readme_from 'lib/Some/Module.pm';
 
 If a second parameter is set to a true value then the C<README> will be removed at C<make distclean>.
 
-  readme_from 'lib/Some/Module.pm' => 'clean';
+  readme_from 'lib/Some/Module.pm', 1;
+
+A third parameter can be used to determine the format of the C<README> file.
+
+  readme_from 'lib/Some/Module.pm', 1, 'htm';
+
+Valid formats are:
+
+=over
+
+=item txt, text
+
+Produce a plain-text C<README> file using L<Pod::Text>. The 'txt' format is the
+default.
+
+=item htm, html
+
+Produce an HTML C<README.htm> file using L<Pod::Html>.
+
+=item man
+
+Produce a C<README.1> manpage using L<Pod::Man>.
+
+=item pdf
+
+Produce a PDF C<README.pdf> file with L<App::pod2pdf> if this module is installed.
+
+=back
+
+A fourth parameter can be used to supply an output filename.
+
+  readme_from 'lib/Some/Module.pm', 0, 'pdf', 'SomeModule.pdf';
+
+Finally, you can pass optional arguments to the POD formatter that handles the
+desired format.
+
+  my @options = ( 'release' => 1.03, 'section' => 8 ); # options for Pod::Man
+  readme_from 'lib/Some/Module.pm', 1, 'man', undef, @options;
 
 If you use the C<all_from> command, C<readme_from> will default to that value.
 
@@ -108,6 +217,12 @@ This module may be used, modified, and distributed under the same terms as Perl 
 L<Module::Install>
 
 L<Pod::Text>
+
+L<Pod::Html>
+
+L<Pod::Man>
+
+L<App::pod2pdf>
 
 =cut
 

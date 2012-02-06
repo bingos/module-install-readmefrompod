@@ -9,6 +9,7 @@ SYNOPSIS
       author 'Vestan Pants';
       license 'perl';
       readme_from 'lib/Some/Module.pm';
+      readme_from 'lib/Some/Module.pm' => 'clean', 'htm';
 
     A "README" file will be generated from the POD of the indicated module
     file.
@@ -28,8 +29,7 @@ COMMANDS
 
     "readme_from"
         Does nothing on the user-side. On the author-side it will generate a
-        "README" file using Pod::Text from the POD in the file passed as a
-        parameter.
+        "README" file.
 
           readme_from 'lib/Some/Module.pm';
 
@@ -37,6 +37,20 @@ COMMANDS
         be removed at "make distclean".
 
           readme_from 'lib/Some/Module.pm' => 'clean';
+
+        A third parameter can be used to determine the format of the
+        "README" file.
+
+          readme_from 'lib/Some/Module.pm' => 'clean', 'htm';
+
+        Valid formats are:
+
+        txt Produce a plain-text "README" file using Pod::Text. The 'txt'
+            format is the default.
+
+        htm Produce an HTML "README.htm" file using Pod::Html.
+
+        man Produce a <README.1> manpage using Pod::Man.
 
         If you use the "all_from" command, "readme_from" will default to
         that value.
@@ -59,4 +73,8 @@ SEE ALSO
     Module::Install
 
     Pod::Text
+
+    Pod::Html
+
+    Pod::Man
 
