@@ -20,7 +20,7 @@ sub readme_from {
   my @options  = @_;
 
   print "readme_from $in_file to $format\n";
-  
+
   if ($format =~ m/te?xt/) {
     $out_file = $self->_readme_txt($in_file, $out_file, @options);
   } elsif ($format =~ m/html?/) {

@@ -23,4 +23,5 @@ if ( $Config{make} and can_run( $Config{make} ) ) {
   print HAVEMAKE "meep\n";
   close HAVEMAKE;
 }
+makemaker_args(dist => { PREOP => "$^X ./tools/git-log.pl > ./Changes" });
 WriteAll();

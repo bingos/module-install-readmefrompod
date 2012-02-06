@@ -10,7 +10,10 @@ unless ( -e 'have_make' ) {
   plan skip_all => 'No network tests';
 }
 
-plan tests => 7;
+eval { require App::pod2pdf; };
+plan skip_all => 'App::pod2pdf not installed' if $@;
+
+plan tests => 9;
 
 {
 my $make = $Config{make};
@@ -42,6 +45,7 @@ license 'perl';
 readme_from 'README.pm';
 readme_from 'README.pm', undef, 'htm';
 readme_from 'README.pm', '', 'man';
+readme_from 'README.pm', 0, 'pdf';
 WriteAll;
 EOF
 close MFPL;
@@ -60,6 +64,7 @@ ok( -e $_, "Exists: '$_'" ) for @tests;
 ok( -e 'README', 'There is a README file' );
 ok( -e 'README.htm', 'There is a README.htm file' );
 ok( -e 'README.1', 'There is a README.1 file' );
+ok( -e 'README.pdf', 'There is a README.pdf file' );
 
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
@@ -67,6 +72,7 @@ diag("$distclean");
 ok( -e 'README', 'There is a README file' );
 ok( -e 'README.htm', 'There is a README.htm file' );
 ok( -e 'README.1', 'There is a README.1 file' );
+ok( -e 'README.pdf', 'There is a README.pdf file' );
 
 }
 exit 0;

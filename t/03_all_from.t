@@ -27,7 +27,7 @@ our \$VERSION = '0.01';
 
 Foo::Bar - Putting the Foo into Bar
 
-=head1 DESCRIPTION 
+=head1 DESCRIPTION
 
 It is like chocolate, but not.
 
