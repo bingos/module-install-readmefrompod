@@ -90,6 +90,7 @@ Module::Install::ReadmeFromPod - A Module::Install extension to automatically co
   author 'Vestan Pants';
   license 'perl';
   readme_from 'lib/Some/Module.pm';
+  readme_from 'lib/Some/Module.pm' => 'clean', 'htm';
 
 A C<README> file will be generated from the POD of the indicated module file.
 
@@ -119,6 +120,11 @@ the POD in the file passed as a parameter.
 If a second parameter is set to a true value then the C<README> will be removed at C<make distclean>.
 
   readme_from 'lib/Some/Module.pm' => 'clean';
+
+A third parameter can be used to determine the format of the C<README> file. It
+can be 'txt' (the default), or 'htm' to produce an HTML file named C<README.htm>
+
+  readme_from 'lib/Some/Module.pm' => 'clean', 'htm';
 
 If you use the C<all_from> command, C<readme_from> will default to that value.
 
