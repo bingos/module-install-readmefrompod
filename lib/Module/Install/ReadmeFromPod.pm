@@ -26,6 +26,8 @@ sub readme_from {
     $out = $self->_readme_htm($file);
   } elsif ($format eq 'man') {
     $out = $self->_readme_man($file);
+  } elsif ($format eq 'pdf') {
+    $out = $self->_readme_pdf($file);
   }
 
   if ($clean) {
@@ -41,9 +43,10 @@ sub _readme_txt {
   require Pod::Text;
   my $out_file = 'README';
   my $parser = Pod::Text->new();
-  open my $out_fh, "> $out_file" or die "Could not write file $out_file: $!\n";
+  open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
   $parser->output_fh( *$out_fh );
   $parser->parse_file( $in_file );
+  close $out_fh;
   return $out_file;
 }
 
@@ -76,6 +79,22 @@ sub _readme_man {
 }
 
 
+sub _readme_pdf {
+  my ($self, $in_file) = @_;
+  my $out_file = 'README.pdf';
+  eval { require App::pod2pdf; }
+    or die "Could not generate README.pdf because pod2pdf could not be found\n";
+  my $parser = App::pod2pdf->new( );
+  $parser->parse_from_file($in_file);
+  open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
+  select $out_fh;
+  $parser->output;
+  select STDOUT;
+  close $out_fh;
+  return $out_file;
+}
+
+
 sub _all_from {
   my $self = shift;
   return unless $self->admin->{extensions};
@@ -102,7 +121,7 @@ Module::Install::ReadmeFromPod - A Module::Install extension to automatically co
   author 'Vestan Pants';
   license 'perl';
   readme_from 'lib/Some/Module.pm';
-  readme_from 'lib/Some/Module.pm' => 'clean', 'htm';
+  readme_from 'lib/Some/Module.pm', 'clean', 'htm';
 
 A C<README> file will be generated from the POD of the indicated module file.
 
@@ -116,7 +135,7 @@ into the user-side distribution).
 Module::Install::ReadmeFromPod is a L<Module::Install> extension that generates
 a C<README> file automatically from an indicated file containing POD, whenever
 the author runs C<Makefile.PL>. Several output formats are supported: plain-text,
-html or manpage.
+HTML, PDF or manpage.
 
 =head1 COMMANDS
 
@@ -156,6 +175,10 @@ Produce an HTML C<README.htm> file using L<Pod::Html>.
 
 Produce a C<README.1> manpage using L<Pod::Man>.
 
+=item pdf
+
+Produce a PDF C<README.pdf> file with L<App::pod2pdf> if this module is installed.
+
 =back
 
 If you use the C<all_from> command, C<readme_from> will default to that value.
@@ -185,6 +208,8 @@ L<Pod::Text>
 L<Pod::Html>
 
 L<Pod::Man>
+
+L<App::pod2pdf>
 
 =cut
 

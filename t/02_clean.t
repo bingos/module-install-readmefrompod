@@ -10,7 +10,7 @@ unless ( -e 'have_make' ) {
   plan skip_all => 'No network tests';
 }
 
-plan tests => 7;
+plan tests => 9;
 
 {
 my $make = $Config{make};
@@ -42,6 +42,7 @@ license 'perl';
 readme_from 'README.pm' => 'clean';
 readme_from 'README.pm' => 'clean', 'htm';
 readme_from 'README.pm' => 'clean', 'man';
+readme_from 'README.pm' => 'clean', 'pdf';
 WriteAll;
 EOF
 close MFPL;
@@ -60,6 +61,7 @@ ok( -e $_, "Exists: '$_'" ) for @tests;
 ok( -e 'README', 'There is a README file' );
 ok( -e 'README.htm', 'There is a README.htm file' );
 ok( -e 'README.1', 'There is a README.1 file' );
+ok( -e 'README.pdf', 'There is a README.pdf file' );
 
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
@@ -67,6 +69,7 @@ diag("$distclean");
 ok( !-e 'README', 'The README file has been removed' );
 ok( !-e 'README.htm', 'The README.htm file has been removed' );
 ok( !-e 'README.1', 'The README.1 file has been removed' );
+ok( !-e 'README.pdf', 'There is a README.pdf file' );
 
 }
 exit 0;
