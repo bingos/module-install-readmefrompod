@@ -12,26 +12,26 @@ sub readme_from {
   my $self = shift;
   return unless $self->is_admin;
 
-  my $file   = shift || $self->_all_from
+  my $in_file  = shift || $self->_all_from
     or die "Can't determine file to make readme_from";
-  my $clean  = shift || 0;
-  my $format = shift || 'txt';
+  my $clean    = shift || 0;
+  my $format   = shift || 'txt';
+  my $out_file = shift;
 
-  print "readme_from $file to $format\n";
+  print "readme_from $in_file to $format\n";
   
-  my $out;
   if ($format =~ m/te?xt/) {
-    $out = $self->_readme_txt($file);
+    $out_file = $self->_readme_txt($in_file, $out_file);
   } elsif ($format =~ m/html?/) {
-    $out = $self->_readme_htm($file);
+    $out_file = $self->_readme_htm($in_file, $out_file);
   } elsif ($format eq 'man') {
-    $out = $self->_readme_man($file);
+    $out_file = $self->_readme_man($in_file, $out_file);
   } elsif ($format eq 'pdf') {
-    $out = $self->_readme_pdf($file);
+    $out_file = $self->_readme_pdf($in_file, $out_file);
   }
 
   if ($clean) {
-    $self->clean_files($out);
+    $self->clean_files($out_file);
   }
 
   return 1;
@@ -39,9 +39,9 @@ sub readme_from {
 
 
 sub _readme_txt {
-  my ($self, $in_file) = @_;
+  my ($self, $in_file, $out_file) = @_;
   require Pod::Text;
-  my $out_file = 'README';
+  $out_file ||= 'README';
   my $parser = Pod::Text->new();
   open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
   $parser->output_fh( *$out_fh );
@@ -52,9 +52,9 @@ sub _readme_txt {
 
 
 sub _readme_htm {
-  my ($self, $in_file) = @_;
+  my ($self, $in_file, $out_file) = @_;
   require Pod::Html;
-  my $out_file = 'README.htm';
+  $out_file ||= 'README.htm';
   Pod::Html::pod2html(
     "--infile=$in_file",
     "--outfile=$out_file",
@@ -70,9 +70,9 @@ sub _readme_htm {
 
 
 sub _readme_man {
-  my ($self, $in_file) = @_;
+  my ($self, $in_file, $out_file) = @_;
   require Pod::Man;
-  my $out_file = 'README.1';
+  $out_file ||= 'README.1';
   my $parser = Pod::Man->new();
   $parser->parse_from_file($in_file, $out_file);
   return $out_file;
@@ -80,8 +80,8 @@ sub _readme_man {
 
 
 sub _readme_pdf {
-  my ($self, $in_file) = @_;
-  my $out_file = 'README.pdf';
+  my ($self, $in_file, $out_file) = @_;
+  $out_file ||= 'README.pdf';
   eval { require App::pod2pdf; }
     or die "Could not generate README.pdf because pod2pdf could not be found\n";
   my $parser = App::pod2pdf->new( );
@@ -152,11 +152,11 @@ file.
 
 If a second parameter is set to a true value then the C<README> will be removed at C<make distclean>.
 
-  readme_from 'lib/Some/Module.pm' => 'clean';
+  readme_from 'lib/Some/Module.pm', 1;
 
 A third parameter can be used to determine the format of the C<README> file.
 
-  readme_from 'lib/Some/Module.pm' => 'clean', 'htm';
+  readme_from 'lib/Some/Module.pm', 1, 'htm';
 
 Valid formats are:
 
@@ -180,6 +180,10 @@ Produce a C<README.1> manpage using L<Pod::Man>.
 Produce a PDF C<README.pdf> file with L<App::pod2pdf> if this module is installed.
 
 =back
+
+A fourth parameter can be used to supply an output filename.
+
+  readme_from 'lib/Some/Module.pm', 0, 'man', 'SomeModule.1';
 
 If you use the C<all_from> command, C<readme_from> will default to that value.
 

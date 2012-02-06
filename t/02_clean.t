@@ -39,10 +39,10 @@ version '0.01';
 author 'Foo Bar';
 abstract 'This module does something';
 license 'perl';
-readme_from 'README.pm' => 'clean', 'text';
-readme_from 'README.pm' => 'clean', 'html';
-readme_from 'README.pm' => 'clean', 'man';
-readme_from 'README.pm' => 'clean', 'pdf';
+readme_from 'README.pm' => 'clean', 'text', 'Foobar.txt';
+readme_from 'README.pm' => 'clean', 'html', 'Foobar.htm';
+readme_from 'README.pm' => 'clean', 'man', 'Foobar.man';
+readme_from 'README.pm' => 'clean', 'pdf', 'Foobar.pdf';
 WriteAll;
 EOF
 close MFPL;
@@ -58,18 +58,18 @@ my @tests = (
 'inc/Module/Install/ReadmeFromPod.pm',
 );
 ok( -e $_, "Exists: '$_'" ) for @tests;
-ok( -e 'README', 'There is a README file' );
-ok( -e 'README.htm', 'There is a README.htm file' );
-ok( -e 'README.1', 'There is a README.1 file' );
-ok( -e 'README.pdf', 'There is a README.pdf file' );
+ok( -e 'Foobar.txt', 'There is a Foobar.txt file' );
+ok( -e 'Foobar.htm', 'There is a Foobar.htm file' );
+ok( -e 'Foobar.man', 'There is a Foobar.man file' );
+ok( -e 'Foobar.pdf', 'There is a Foobar.pdf file' );
 
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
 
-ok( !-e 'README', 'The README file has been removed' );
-ok( !-e 'README.htm', 'The README.htm file has been removed' );
-ok( !-e 'README.1', 'The README.1 file has been removed' );
-ok( !-e 'README.pdf', 'There is a README.pdf file' );
+ok( !-e 'Foobar.txt', 'The Foobar.txt file has been removed' );
+ok( !-e 'Foobar.htm', 'The Foobar.htm file has been removed' );
+ok( !-e 'Foobar.man', 'The Foobar.man file has been removed' );
+ok( !-e 'Foobar.pdf', 'There is a Foobar.pdf file' );
 
 }
 exit 0;
