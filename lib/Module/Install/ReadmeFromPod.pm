@@ -20,9 +20,9 @@ sub readme_from {
   print "readme_from $file to $format\n";
   
   my $out;
-  if ($format eq 'txt') {
+  if ($format =~ m/te?xt/) {
     $out = $self->_readme_txt($file);
-  } elsif ($format eq 'htm') {
+  } elsif ($format =~ m/html?/) {
     $out = $self->_readme_htm($file);
   } elsif ($format eq 'man') {
     $out = $self->_readme_man($file);
@@ -162,12 +162,12 @@ Valid formats are:
 
 =over
 
-=item txt
+=item txt, text
 
 Produce a plain-text C<README> file using L<Pod::Text>. The 'txt' format is the
 default.
 
-=item htm
+=item htm, html
 
 Produce an HTML C<README.htm> file using L<Pod::Html>.
 
