@@ -17,17 +17,18 @@ sub readme_from {
   my $clean    = shift || 0;
   my $format   = shift || 'txt';
   my $out_file = shift;
+  my @options  = @_;
 
   print "readme_from $in_file to $format\n";
   
   if ($format =~ m/te?xt/) {
-    $out_file = $self->_readme_txt($in_file, $out_file);
+    $out_file = $self->_readme_txt($in_file, $out_file, @options);
   } elsif ($format =~ m/html?/) {
-    $out_file = $self->_readme_htm($in_file, $out_file);
+    $out_file = $self->_readme_htm($in_file, $out_file, @options);
   } elsif ($format eq 'man') {
-    $out_file = $self->_readme_man($in_file, $out_file);
+    $out_file = $self->_readme_man($in_file, $out_file, @options);
   } elsif ($format eq 'pdf') {
-    $out_file = $self->_readme_pdf($in_file, $out_file);
+    $out_file = $self->_readme_pdf($in_file, $out_file, @options);
   }
 
   if ($clean) {
@@ -39,10 +40,10 @@ sub readme_from {
 
 
 sub _readme_txt {
-  my ($self, $in_file, $out_file) = @_;
-  require Pod::Text;
+  my ($self, $in_file, $out_file, @options) = @_;
   $out_file ||= 'README';
-  my $parser = Pod::Text->new();
+  require Pod::Text;
+  my $parser = Pod::Text->new( @options );
   open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
   $parser->output_fh( *$out_fh );
   $parser->parse_file( $in_file );
@@ -52,12 +53,13 @@ sub _readme_txt {
 
 
 sub _readme_htm {
-  my ($self, $in_file, $out_file) = @_;
-  require Pod::Html;
+  my ($self, $in_file, $out_file, @options) = @_;
   $out_file ||= 'README.htm';
+  require Pod::Html;
   Pod::Html::pod2html(
     "--infile=$in_file",
     "--outfile=$out_file",
+    @options,
   );
   # Remove temporary files if needed
   for my $file ('pod2htmd.tmp', 'pod2htmi.tmp') {
@@ -70,21 +72,21 @@ sub _readme_htm {
 
 
 sub _readme_man {
-  my ($self, $in_file, $out_file) = @_;
-  require Pod::Man;
+  my ($self, $in_file, $out_file, @options) = @_;
   $out_file ||= 'README.1';
-  my $parser = Pod::Man->new();
+  require Pod::Man;
+  my $parser = Pod::Man->new( @options );
   $parser->parse_from_file($in_file, $out_file);
   return $out_file;
 }
 
 
 sub _readme_pdf {
-  my ($self, $in_file, $out_file) = @_;
+  my ($self, $in_file, $out_file, @options) = @_;
   $out_file ||= 'README.pdf';
   eval { require App::pod2pdf; }
-    or die "Could not generate README.pdf because pod2pdf could not be found\n";
-  my $parser = App::pod2pdf->new( );
+    or die "Could not generate $out_file because pod2pdf could not be found\n";
+  my $parser = App::pod2pdf->new( @options );
   $parser->parse_from_file($in_file);
   open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
   select $out_fh;
@@ -121,7 +123,8 @@ Module::Install::ReadmeFromPod - A Module::Install extension to automatically co
   author 'Vestan Pants';
   license 'perl';
   readme_from 'lib/Some/Module.pm';
-  readme_from 'lib/Some/Module.pm', 'clean', 'htm';
+  my @options = ( '--backlink="Back to Top" );
+  readme_from 'lib/Some/Module.pm', 'clean', 'htm', 'SomeModule.html', @options;
 
 A C<README> file will be generated from the POD of the indicated module file.
 
@@ -183,7 +186,13 @@ Produce a PDF C<README.pdf> file with L<App::pod2pdf> if this module is installe
 
 A fourth parameter can be used to supply an output filename.
 
-  readme_from 'lib/Some/Module.pm', 0, 'man', 'SomeModule.1';
+  readme_from 'lib/Some/Module.pm', 0, 'pdf', 'SomeModule.pdf';
+
+Finally, you can pass optional arguments to the POD formatter that handles the
+desired format.
+
+  my @options = ( 'release' => 1.03, 'section' => 8 ); # options for Pod::Man
+  readme_from 'lib/Some/Module.pm', 1, 'man', undef, @options;
 
 If you use the C<all_from> command, C<readme_from> will default to that value.
 

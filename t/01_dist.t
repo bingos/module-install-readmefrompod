@@ -40,8 +40,8 @@ author 'Foo Bar';
 abstract 'This module does something';
 license 'perl';
 readme_from 'README.pm';
-readme_from 'README.pm', 0, 'htm';
-readme_from 'README.pm', 0, 'man';
+readme_from 'README.pm', undef, 'htm';
+readme_from 'README.pm', '', 'man';
 readme_from 'README.pm', 0, 'pdf';
 WriteAll;
 EOF
