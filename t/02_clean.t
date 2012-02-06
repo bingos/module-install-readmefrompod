@@ -10,7 +10,7 @@ unless ( -e 'have_make' ) {
   plan skip_all => 'No network tests';
 }
 
-plan tests => 3;
+plan tests => 5;
 
 {
 my $make = $Config{make};
@@ -40,6 +40,7 @@ author 'Foo Bar';
 abstract 'This module does something';
 license 'perl';
 readme_from 'README.pm' => 'clean';
+readme_from 'README.pm' => 'clean', 'htm';
 WriteAll;
 EOF
 close MFPL;
@@ -56,11 +57,13 @@ my @tests = (
 );
 ok( -e $_, "Exists: '$_'" ) for @tests;
 ok( -e 'README', 'There is a README file' );
+ok( -e 'README.htm', 'There is a README.htm file' );
 
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
 
 ok( !-e 'README', 'The README file has been removed' );
+ok( !-e 'README.htm', 'The README.htm file has been removed' );
 
 }
 exit 0;

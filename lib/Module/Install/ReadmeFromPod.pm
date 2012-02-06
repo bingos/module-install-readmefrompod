@@ -16,29 +16,50 @@ sub readme_from {
     or die "Can't determine file to make readme_from";
   my $clean  = shift || 0;
   my $format = shift || 'txt';
-  print "readme_from $file ($format)\n";
+
+  print "readme_from $file to $format\n";
   
   my $out;
-  if ($format = 'txt') {
-    $out_file = $self->readme_txt($file);
+  if ($format eq 'txt') {
+    $out = $self->_readme_txt($file);
+  } elsif ($format eq 'htm') {
+    $out = $self->_readme_htm($file);
   }
 
   if ($clean) {
-    $self->clean_files($out_file);
+    $self->clean_files($out);
   }
 
   return 1;
 }
 
 
-sub readme_txt {
-  my ($self, $file) = @_;
+sub _readme_txt {
+  my ($self, $in_file) = @_;
   require Pod::Text;
   my $out_file = 'README';
   my $parser = Pod::Text->new();
   open my $out_fh, "> $out_file" or die "Could not write file $out_file: $!\n";
   $parser->output_fh( *$out_fh );
-  $parser->parse_file( $file );
+  $parser->parse_file( $in_file );
+  return $out_file;
+}
+
+
+sub _readme_htm {
+  my ($self, $in_file) = @_;
+  require Pod::Html;
+  my $out_file = 'README.htm';
+  Pod::Html::pod2html(
+    "--infile=$in_file",
+    "--outfile=$out_file",
+  );
+  # Remove temporary files if needed
+  for my $file ('pod2htmd.tmp', 'pod2htmi.tmp') {
+    if (-e $file) {
+      unlink $file or warn "Warning: Could not remove file '$file'.\n$!\n";
+    }
+  }
   return $out_file;
 }
 
