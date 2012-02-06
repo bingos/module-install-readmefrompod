@@ -12,6 +12,7 @@ build_requires 'Capture::Tiny' => 0.05;
 requires 'Module::Install' => 1.00;
 requires 'Pod::Text' => 3.13;
 requires 'Pod::Html' => 0;
+requires 'Pod::Man' => 0;
 readme_from;    # Self hosting!
 githubmeta;
 clean_files 'dist have_make LICENSE';

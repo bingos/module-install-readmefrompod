@@ -24,6 +24,8 @@ sub readme_from {
     $out = $self->_readme_txt($file);
   } elsif ($format eq 'htm') {
     $out = $self->_readme_htm($file);
+  } elsif ($format eq 'man') {
+    $out = $self->_readme_man($file);
   }
 
   if ($clean) {
@@ -60,6 +62,16 @@ sub _readme_htm {
       unlink $file or warn "Warning: Could not remove file '$file'.\n$!\n";
     }
   }
+  return $out_file;
+}
+
+
+sub _readme_man {
+  my ($self, $in_file) = @_;
+  require Pod::Man;
+  my $out_file = 'README.1';
+  my $parser = Pod::Man->new();
+  $parser->parse_from_file($in_file, $out_file);
   return $out_file;
 }
 
@@ -101,8 +113,10 @@ into the user-side distribution).
 
 =head1 DESCRIPTION
 
-Module::Install::ReadmeFromPod is a L<Module::Install> extension that generates a C<README> file 
-automatically from an indicated file containing POD, whenever the author runs C<Makefile.PL>.
+Module::Install::ReadmeFromPod is a L<Module::Install> extension that generates
+a C<README> file automatically from an indicated file containing POD, whenever
+the author runs C<Makefile.PL>. Several output formats are supported: plain-text,
+html or manpage.
 
 =head1 COMMANDS
 
@@ -112,8 +126,8 @@ This plugin adds the following Module::Install command:
 
 =item C<readme_from>
 
-Does nothing on the user-side. On the author-side it will generate a C<README> file using L<Pod::Text> from
-the POD in the file passed as a parameter.
+Does nothing on the user-side. On the author-side it will generate a C<README>
+file.
 
   readme_from 'lib/Some/Module.pm';
 
@@ -121,10 +135,28 @@ If a second parameter is set to a true value then the C<README> will be removed 
 
   readme_from 'lib/Some/Module.pm' => 'clean';
 
-A third parameter can be used to determine the format of the C<README> file. It
-can be 'txt' (the default), or 'htm' to produce an HTML file named C<README.htm>
+A third parameter can be used to determine the format of the C<README> file.
 
   readme_from 'lib/Some/Module.pm' => 'clean', 'htm';
+
+Valid formats are:
+
+=over
+
+=item txt
+
+Produce a plain-text C<README> file using L<Pod::Text>. The 'txt' format is the
+default.
+
+=item htm
+
+Produce an HTML C<README.htm> file using L<Pod::Html>.
+
+=item man
+
+Produce a C<README.1> manpage using L<Pod::Man>.
+
+=back
 
 If you use the C<all_from> command, C<readme_from> will default to that value.
 
@@ -149,6 +181,10 @@ This module may be used, modified, and distributed under the same terms as Perl 
 L<Module::Install>
 
 L<Pod::Text>
+
+L<Pod::Html>
+
+L<Pod::Man>
 
 =cut
 
