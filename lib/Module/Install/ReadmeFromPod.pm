@@ -12,23 +12,45 @@ sub readme_from {
   my $self = shift;
   return unless $self->is_admin;
 
+  # Input file
   my $in_file  = shift || $self->_all_from
     or die "Can't determine file to make readme_from";
-  my $clean    = shift || 0;
-  my $format   = shift || 'txt';
-  my $out_file = shift;
-  my @options  = @_;
 
+  # Get optional arguments
+  my ($clean, $format, $out_file, $options);
+  my $args = shift;
+  if ( ref $args ) {
+    # Arguments are in a hashref
+    if ( ref($args) ne 'HASH' ) {
+      die "Expected a hashref but got a ".ref($args)."\n";
+    } else {
+      $clean    = $args->{'clean'};
+      $format   = $args->{'format'};
+      $out_file = $args->{'output_file'};
+      $options  = $args->{'options'};
+    }
+  } else {
+    # Arguments are in a list
+    $clean    = $args;
+    $format   = shift;
+    $out_file = shift;
+    $options  = \@_;
+  }
+
+  # Default values;
+  $clean  ||= 0;
+  $format ||= 'txt';
+
+  # Generate README
   print "readme_from $in_file to $format\n";
-
   if ($format =~ m/te?xt/) {
-    $out_file = $self->_readme_txt($in_file, $out_file, @options);
+    $out_file = $self->_readme_txt($in_file, $out_file, $options);
   } elsif ($format =~ m/html?/) {
-    $out_file = $self->_readme_htm($in_file, $out_file, @options);
+    $out_file = $self->_readme_htm($in_file, $out_file, $options);
   } elsif ($format eq 'man') {
-    $out_file = $self->_readme_man($in_file, $out_file, @options);
+    $out_file = $self->_readme_man($in_file, $out_file, $options);
   } elsif ($format eq 'pdf') {
-    $out_file = $self->_readme_pdf($in_file, $out_file, @options);
+    $out_file = $self->_readme_pdf($in_file, $out_file, $options);
   }
 
   if ($clean) {
@@ -40,10 +62,10 @@ sub readme_from {
 
 
 sub _readme_txt {
-  my ($self, $in_file, $out_file, @options) = @_;
+  my ($self, $in_file, $out_file, $options) = @_;
   $out_file ||= 'README';
   require Pod::Text;
-  my $parser = Pod::Text->new( @options );
+  my $parser = Pod::Text->new( @$options );
   open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
   $parser->output_fh( *$out_fh );
   $parser->parse_file( $in_file );
@@ -53,13 +75,13 @@ sub _readme_txt {
 
 
 sub _readme_htm {
-  my ($self, $in_file, $out_file, @options) = @_;
+  my ($self, $in_file, $out_file, $options) = @_;
   $out_file ||= 'README.htm';
   require Pod::Html;
   Pod::Html::pod2html(
     "--infile=$in_file",
     "--outfile=$out_file",
-    @options,
+    @$options,
   );
   # Remove temporary files if needed
   for my $file ('pod2htmd.tmp', 'pod2htmi.tmp') {
@@ -72,21 +94,21 @@ sub _readme_htm {
 
 
 sub _readme_man {
-  my ($self, $in_file, $out_file, @options) = @_;
+  my ($self, $in_file, $out_file, $options) = @_;
   $out_file ||= 'README.1';
   require Pod::Man;
-  my $parser = Pod::Man->new( @options );
+  my $parser = Pod::Man->new( @$options );
   $parser->parse_from_file($in_file, $out_file);
   return $out_file;
 }
 
 
 sub _readme_pdf {
-  my ($self, $in_file, $out_file, @options) = @_;
+  my ($self, $in_file, $out_file, $options) = @_;
   $out_file ||= 'README.pdf';
   eval { require App::pod2pdf; }
     or die "Could not generate $out_file because pod2pdf could not be found\n";
-  my $parser = App::pod2pdf->new( @options );
+  my $parser = App::pod2pdf->new( @$options );
   $parser->parse_from_file($in_file);
   open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
   select $out_fh;
@@ -123,8 +145,7 @@ Module::Install::ReadmeFromPod - A Module::Install extension to automatically co
   author 'Vestan Pants';
   license 'perl';
   readme_from 'lib/Some/Module.pm';
-  my @options = ( '--backlink="Back to Top" );
-  readme_from 'lib/Some/Module.pm', 'clean', 'htm', 'SomeModule.html', @options;
+  readme_from 'lib/Some/Module.pm', { clean => 1, format => 'htm', output_file => 'SomeModule.html' };
 
 A C<README> file will be generated from the POD of the indicated module file.
 
@@ -161,7 +182,7 @@ A third parameter can be used to determine the format of the C<README> file.
 
   readme_from 'lib/Some/Module.pm', 1, 'htm';
 
-Valid formats are:
+Valid formats for this third parameter are:
 
 =over
 
@@ -188,11 +209,17 @@ A fourth parameter can be used to supply an output filename.
 
   readme_from 'lib/Some/Module.pm', 0, 'pdf', 'SomeModule.pdf';
 
-Finally, you can pass optional arguments to the POD formatter that handles the
-desired format.
+Finally, you can pass additional arguments to the POD formatter that handles the
+requested format.
 
   my @options = ( 'release' => 1.03, 'section' => 8 ); # options for Pod::Man
   readme_from 'lib/Some/Module.pm', 1, 'man', undef, @options;
+
+But instead of passing this long list of optional arguments to readme_from, you
+should probably pass these arguments as a named hashref for clarity.
+
+  my @options = ( 'release' => 1.03, 'section' => 8 );
+  readme_from 'lib/Some/Module.pm', {clean => 1, format => 'man', output_file => undef, options => @options};
 
 If you use the C<all_from> command, C<readme_from> will default to that value.
 

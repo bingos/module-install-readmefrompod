@@ -45,7 +45,7 @@ readme_from 'README.pm' => 'clean', 'text', 'Foobar.txt', \@options;
 \@options = ( '--backlink="Back to Top"', '--flush' );
 readme_from 'README.pm' => 'clean', 'html', 'Foobar.htm', \@options;
 \@options = ( 'release' => 1.03, 'section' => 8 );
-readme_from 'README.pm' => 'clean', 'man', 'Foobar.man', \@options;
+readme_from 'README.pm', { clean => 1, format => 'man', output_file => 'Foobar.man', options => \\\@options };
 WriteAll;
 EOF
 close MFPL;
