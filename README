@@ -9,8 +9,7 @@ SYNOPSIS
       author 'Vestan Pants';
       license 'perl';
       readme_from 'lib/Some/Module.pm';
-      my @options = ( '--backlink="Back to Top" );
-      readme_from 'lib/Some/Module.pm', 'clean', 'htm', 'SomeModule.html', @options;
+      readme_from 'lib/Some/Module.pm', { clean => 1, format => 'htm', output_file => 'SomeModule.html' };
 
     A "README" file will be generated from the POD of the indicated module
     file.
@@ -45,7 +44,7 @@ COMMANDS
 
           readme_from 'lib/Some/Module.pm', 1, 'htm';
 
-        Valid formats are:
+        Valid formats for this third parameter are:
 
         txt, text
             Produce a plain-text "README" file using Pod::Text. The 'txt'
@@ -63,11 +62,18 @@ COMMANDS
 
           readme_from 'lib/Some/Module.pm', 0, 'pdf', 'SomeModule.pdf';
 
-        Finally, you can pass optional arguments to the POD formatter that
-        handles the desired format.
+        Finally, you can pass additional arguments to the POD formatter that
+        handles the requested format.
 
           my @options = ( 'release' => 1.03, 'section' => 8 ); # options for Pod::Man
           readme_from 'lib/Some/Module.pm', 1, 'man', undef, @options;
+
+        But instead of passing this long list of optional arguments to
+        readme_from, you should probably pass these arguments as a named
+        hashref for clarity.
+
+          my @options = ( 'release' => 1.03, 'section' => 8 );
+          readme_from 'lib/Some/Module.pm', {clean => 1, format => 'man', output_file => undef, options => @options};
 
         If you use the "all_from" command, "readme_from" will default to
         that value.
