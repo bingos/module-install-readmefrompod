@@ -42,7 +42,7 @@ license 'perl';
 my \@options;
 \@options = ( 'sentence' => 0, 'width' => 20 );
 readme_from 'README.pm' => 'clean', 'text', 'Foobar.txt', \@options;
-\@options = ( '--backlink="Back to Top"', '--flush' );
+\@options = ( '--backlink', '--flush' );
 readme_from 'README.pm' => 'clean', 'html', 'Foobar.htm', \@options;
 \@options = ( 'release' => 1.03, 'section' => 8 );
 readme_from 'README.pm', { clean => 1, format => 'man', output_file => 'Foobar.man', options => \\\@options };
