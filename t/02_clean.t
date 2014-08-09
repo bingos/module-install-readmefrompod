@@ -5,20 +5,20 @@ use File::Temp      qw[tempdir];
 use File::Path      qw[rmtree];
 use Capture::Tiny   qw[capture_merged];
 use Config;
+use IO::All -binary;
 
 unless ( -e 'have_make' ) {
   plan skip_all => 'No network tests';
 }
 
-plan tests => 7;
+plan tests => 10;
 
 {
 my $make = $Config{make};
 mkdir 'dist';
 my $tmpdir = tempdir( DIR => 'dist', CLEANUP => 1 );
 chdir $tmpdir or die "$!\n";
-open READMEPM , '>README.pm' or die "$!\n";
-print READMEPM <<README;
+io->file('README.pm')->print(<<README);
 =head1 NAME
 
 Foo::Bar - Putting the Foo into Bar
@@ -29,9 +29,7 @@ It is like chocolate, but not.
 
 =cut
 README
-close READMEPM;
-open MFPL, '>Makefile.PL' or die "$!\n";
-print MFPL <<EOF;
+io->file('Makefile.PL')->print(<<EOF);
 use strict;
 use inc::Module::Install;
 name 'Foo-Bar';
@@ -48,7 +46,6 @@ readme_from 'README.pm' => 'clean', 'html', 'Foobar.htm', \@options;
 readme_from 'README.pm', { clean => 1, format => 'man', output_file => 'Foobar.man', options => \\\@options };
 WriteAll;
 EOF
-close MFPL;
 my $merged = capture_merged { system "$^X Makefile.PL" };
 diag("$merged");
 # Copied /usr/lib/perl5/site_perl/5.8.8/Devel/CheckOS.pm to
@@ -65,6 +62,9 @@ ok( -e 'Foobar.txt', 'There is a Foobar.txt file' );
 ok( -e 'Foobar.htm', 'There is a Foobar.htm file' );
 ok( -e 'Foobar.man', 'There is a Foobar.man file' );
 
+unlike io->file($_)->all, qr/\r\n/, "$_ contains only unix newlines"
+  for qw( Foobar.txt Foobar.htm Foobar.man );
+  
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
 
