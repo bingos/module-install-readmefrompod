@@ -1,3 +1,4 @@
+use Test::InDistDir;
 use strict;
 use warnings;
 use Test::More; #tests => 1;
@@ -5,20 +6,20 @@ use File::Temp      qw[tempdir];
 use File::Path      qw[rmtree];
 use Capture::Tiny   qw[capture_merged];
 use Config;
+use IO::All -binary;
 
 unless ( -e 'have_make' ) {
   plan skip_all => 'No network tests';
 }
 
-plan tests => 7;
+plan tests => 10;
 
 {
 my $make = $Config{make};
 mkdir 'dist';
 my $tmpdir = tempdir( DIR => 'dist', CLEANUP => 1 );
 chdir $tmpdir or die "$!\n";
-open READMEPM , '>README.pm' or die "$!\n";
-print READMEPM <<README;
+io->file('README.pm')->print(<<README);
 =head1 NAME
 
 Foo::Bar - Putting the Foo into Bar
@@ -29,9 +30,7 @@ It is like chocolate, but not.
 
 =cut
 README
-close READMEPM;
-open MFPL, '>Makefile.PL' or die "$!\n";
-print MFPL <<EOF;
+io->file('Makefile.PL')->print(<<EOF);
 use strict;
 use inc::Module::Install;
 name 'Foo-Bar';
@@ -44,7 +43,6 @@ readme_from 'README.pm', undef, 'htm';
 readme_from 'README.pm', '', 'man';
 WriteAll;
 EOF
-close MFPL;
 my $merged = capture_merged { system "$^X Makefile.PL" };
 diag("$merged");
 # Copied /usr/lib/perl5/site_perl/5.8.8/Devel/CheckOS.pm to
@@ -61,12 +59,17 @@ ok( -e 'README', 'There is a README file' );
 ok( -e 'README.htm', 'There is a README.htm file' );
 ok( -e 'README.1', 'There is a README.1 file' );
 
+unlike io->file($_)->all, qr/\r\n/, "$_ contains only unix newlines"
+  for qw( README README.htm README.1 );
+
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
 
 ok( -e 'README', 'There is a README file' );
 ok( -e 'README.htm', 'There is a README.htm file' );
 ok( -e 'README.1', 'There is a README.1 file' );
+
+
 
 }
 exit 0;

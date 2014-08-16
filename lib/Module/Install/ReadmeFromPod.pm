@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use base qw(Module::Install::Base);
 use vars qw($VERSION);
+use IO::All -binary;
+use Capture::Tiny 'capture';
 
 $VERSION = '0.22';
 
@@ -66,10 +68,10 @@ sub _readme_txt {
   $out_file ||= 'README';
   require Pod::Text;
   my $parser = Pod::Text->new( @$options );
-  open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
+  my $io = io->file($out_file)->open(">");
+  my $out_fh = $io->io_handle;
   $parser->output_fh( *$out_fh );
   $parser->parse_file( $in_file );
-  close $out_fh;
   return $out_file;
 }
 
@@ -78,11 +80,14 @@ sub _readme_htm {
   my ($self, $in_file, $out_file, $options) = @_;
   $out_file ||= 'README.htm';
   require Pod::Html;
-  Pod::Html::pod2html(
-    "--infile=$in_file",
-    "--outfile=$out_file",
-    @$options,
-  );
+  my ($o) = capture {
+    Pod::Html::pod2html(
+      "--infile=$in_file",
+      "--outfile=-",
+      @$options,
+    );
+  };
+  io->file($out_file)->print($o);
   # Remove temporary files if needed
   for my $file ('pod2htmd.tmp', 'pod2htmi.tmp') {
     if (-e $file) {
@@ -98,7 +103,10 @@ sub _readme_man {
   $out_file ||= 'README.1';
   require Pod::Man;
   my $parser = Pod::Man->new( @$options );
-  $parser->parse_from_file($in_file, $out_file);
+  my $io = io->file($out_file)->open(">");
+  my $out_fh = $io->io_handle;
+  $parser->output_fh( *$out_fh );
+  $parser->parse_file( $in_file );
   return $out_file;
 }
 
@@ -110,11 +118,8 @@ sub _readme_pdf {
     or die "Could not generate $out_file because pod2pdf could not be found\n";
   my $parser = App::pod2pdf->new( @$options );
   $parser->parse_from_file($in_file);
-  open my $out_fh, '>', $out_file or die "Could not write file $out_file:\n$!\n";
-  select $out_fh;
-  $parser->output;
-  select STDOUT;
-  close $out_fh;
+  my ($o) = capture { $parser->output };
+  io->file($out_file)->print($o);
   return $out_file;
 }
 
