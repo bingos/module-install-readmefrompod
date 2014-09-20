@@ -12,7 +12,7 @@ unless ( -e 'have_make' ) {
   plan skip_all => 'No network tests';
 }
 
-plan tests => 10;
+plan tests => 13;
 
 {
 my $make = $Config{make};
@@ -41,6 +41,7 @@ license 'perl';
 readme_from 'README.pm';
 readme_from 'README.pm', undef, 'htm';
 readme_from 'README.pm', '', 'man';
+readme_from 'README.pm', '', 'md';
 WriteAll;
 EOF
 my $merged = capture_merged { system "$^X Makefile.PL" };
@@ -57,16 +58,18 @@ my @tests = (
 ok( -e $_, "Exists: '$_'" ) for @tests;
 ok( -e 'README', 'There is a README file' );
 ok( -e 'README.htm', 'There is a README.htm file' );
+ok( -e 'README.md', 'There is a README.md file' );
 ok( -e 'README.1', 'There is a README.1 file' );
 
 unlike io->file($_)->all, qr/\r\n/, "$_ contains only unix newlines"
-  for qw( README README.htm README.1 );
+  for qw( README README.htm README.md README.1 );
 
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
 
 ok( -e 'README', 'There is a README file' );
 ok( -e 'README.htm', 'There is a README.htm file' );
+ok( -e 'README.md', 'There is a README.md file' );
 ok( -e 'README.1', 'There is a README.1 file' );
 
 

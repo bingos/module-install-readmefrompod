@@ -11,7 +11,7 @@ unless ( -e 'have_make' ) {
   plan skip_all => 'No network tests';
 }
 
-plan tests => 10;
+plan tests => 13;
 
 {
 my $make = $Config{make};
@@ -42,6 +42,8 @@ my \@options;
 readme_from 'README.pm' => 'clean', 'text', 'Foobar.txt', \@options;
 \@options = ( '--backlink', '--flush' );
 readme_from 'README.pm' => 'clean', 'html', 'Foobar.htm', \@options;
+\@options = ( 'perldoc_url_prefix' => 'metacpan' );
+readme_from 'README.pm' => 'clean', 'md', 'Foobar.md', \@options;
 \@options = ( 'release' => 1.03, 'section' => 8 );
 readme_from 'README.pm', { clean => 1, format => 'man', output_file => 'Foobar.man', options => \\\@options };
 WriteAll;
@@ -60,16 +62,18 @@ my @tests = (
 ok( -e $_, "Exists: '$_'" ) for @tests;
 ok( -e 'Foobar.txt', 'There is a Foobar.txt file' );
 ok( -e 'Foobar.htm', 'There is a Foobar.htm file' );
+ok( -e 'Foobar.md', 'There is a Foobar.md file' );
 ok( -e 'Foobar.man', 'There is a Foobar.man file' );
 
 unlike io->file($_)->all, qr/\r\n/, "$_ contains only unix newlines"
-  for qw( Foobar.txt Foobar.htm Foobar.man );
+  for qw( Foobar.txt Foobar.htm Foobar.md Foobar.man );
   
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
 
 ok( !-e 'Foobar.txt', 'The Foobar.txt file has been removed' );
 ok( !-e 'Foobar.htm', 'The Foobar.htm file has been removed' );
+ok( !-e 'Foobar.md', 'The Foobar.md file has been removed' );
 ok( !-e 'Foobar.man', 'The Foobar.man file has been removed' );
 
 }

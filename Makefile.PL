@@ -14,6 +14,7 @@ requires 'Module::Install' => 1.00;
 requires 'Pod::Text' => 3.13;
 requires 'Pod::Html' => 0;
 requires 'Pod::Man' => 0;
+requires 'Pod::Markdown' => 2.0;
 recommends 'App::pod2pdf';
 readme_from;    # Self hosting!
 githubmeta;
