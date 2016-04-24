@@ -55,6 +55,8 @@ COMMANDS
 
         man Produce a "README.1" manpage using Pod::Man.
 
+        md  Produce a "README.md" file using Pod::Markdown.
+
         pdf Produce a PDF "README.pdf" file with App::pod2pdf if this module
             is installed.
 
