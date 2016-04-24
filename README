@@ -103,5 +103,7 @@ SEE ALSO
 
     Pod::Man
 
+    Pod::Markdown
+
     App::pod2pdf
 
