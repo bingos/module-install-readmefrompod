@@ -15,6 +15,7 @@ build_requires 'File::Temp' => 0;
 build_requires 'Capture::Tiny' => 0.05;
 build_requires 'Test::InDistDir' => 0;
 requires 'Module::Install' => 1.00;
+requires 'IO::All' => 0;
 requires 'Pod::Text' => 3.13;
 requires 'Pod::Html' => 0;
 requires 'Pod::Man' => 0;
