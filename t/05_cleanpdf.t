@@ -26,13 +26,14 @@ io->file('README.pm')->print(<<README);
 
 Foo::Bar - Putting the Foo into Bar
 
-=head1 DESCRIPTION 
+=head1 DESCRIPTION
 
 It is like chocolate, but not.
 
 =cut
 README
-io->file('Makefile.PL')->print(<<EOF);
+io->file('Makefile.PL')->print(<<'EOF');
+use if ! ( grep { $_ eq '.' } @INC ), qw[lib .];
 use strict;
 use inc::Module::Install;
 name 'Foo-Bar';

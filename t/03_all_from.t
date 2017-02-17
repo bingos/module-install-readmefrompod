@@ -44,7 +44,8 @@ under the same terms as Perl itself.
 
 =cut
 README
-io->file('Makefile.PL')->print(<<EOF);
+io->file('Makefile.PL')->print(<<'EOF');
+use if ! ( grep { $_ eq '.' } @INC ), qw[lib .];
 use inc::Module::Install;
 name 'Foo-Bar';
 all_from 'README.pm';

@@ -1,3 +1,4 @@
+use if ! ( grep { $_ eq '.' } @INC ), qw[lib .];
 use strict;
 use lib 'lib';
 use inc::Module::Install;

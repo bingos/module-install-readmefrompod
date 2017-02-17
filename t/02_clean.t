@@ -30,6 +30,7 @@ It is like chocolate, but not.
 =cut
 README
 io->file('Makefile.PL')->print(<<EOF);
+use if ! ( grep { \$_ eq '.' } \@INC ), qw[lib .];
 use strict;
 use inc::Module::Install;
 name 'Foo-Bar';
@@ -67,7 +68,7 @@ ok( -e 'Foobar.man', 'There is a Foobar.man file' );
 
 unlike io->file($_)->all, qr/\r\n/, "$_ contains only unix newlines"
   for qw( Foobar.txt Foobar.htm Foobar.md Foobar.man );
-  
+
 my $distclean = capture_merged { system "$make distclean" };
 diag("$distclean");
 

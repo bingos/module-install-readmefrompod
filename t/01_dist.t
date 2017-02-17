@@ -30,7 +30,8 @@ It is like chocolate, but not.
 
 =cut
 README
-io->file('Makefile.PL')->print(<<EOF);
+io->file('Makefile.PL')->print(<<'EOF');
+use if ! ( grep { $_ eq '.' } @INC ), qw[lib .];
 use strict;
 use inc::Module::Install;
 name 'Foo-Bar';
