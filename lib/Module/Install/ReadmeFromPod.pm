@@ -6,7 +6,7 @@ use warnings;
 use base qw(Module::Install::Base);
 use vars qw($VERSION);
 
-$VERSION = '0.28';
+$VERSION = '0.30';
 
 {
 
